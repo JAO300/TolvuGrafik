@@ -31,24 +31,34 @@ window.onload = function init() {
     
     var vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, 8*maxNumPoints, gl.DYNAMIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, 8*3*maxNumPoints, gl.DYNAMIC_DRAW);
     
     var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
     
     canvas.addEventListener("mousedown", function(e){
-
-        gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
-        
-        // Calculate coordinates of new point
-        var t = vec2(2*e.offsetX/canvas.width-1, 2*(canvas.height-e.offsetY)/canvas.height-1);
-        
-        // Add new point behind the others
-        gl.bufferSubData(gl.ARRAY_BUFFER, 8*index, flatten(t));
-
-        index++;
-    } );
+        gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    
+        // Staðsetning
+        var x = 2 * e.offsetX / canvas.width - 1;
+        var y = 2 * (canvas.height - e.offsetY) / canvas.height - 1;
+    
+        // Stærð
+        var dx = 0.05;
+        var dy = 0.05;
+    
+        // Reikna út þríhyrninga 
+        var triangle = [
+            vec2(x, y + dy),           
+            vec2(x - dx, y - dy),  
+            vec2(x + dx, y - dy)   
+        ];
+    
+        gl.bufferSubData(gl.ARRAY_BUFFER, 8 * 3 * index, flatten(triangle));
+    
+        index++; 
+    });
 
     render();
 }
@@ -57,7 +67,7 @@ window.onload = function init() {
 function render() {
     
     gl.clear( gl.COLOR_BUFFER_BIT );
-    gl.drawArrays( gl.POINTS, 0, index );
+    gl.drawArrays( gl.TRIANGLES, 0, 3 * index );
 
     window.requestAnimFrame(render);
 }
